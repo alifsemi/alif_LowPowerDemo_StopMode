@@ -3397,7 +3397,7 @@
 //    <1=> DMA0
 // <i> Defines Select DMA0 for UART4. By default DMA0 will be considered.
 // <i> Default: DMA0
-#define RTE_UART4_SELECT_DMA0          1
+#define RTE_UART4_SELECT_DMA0          0
 
 // <o> UART4 DMA IRQ priority <0-255>
 // <i> Defines UART4 DMA Interrupt priority
@@ -3409,7 +3409,7 @@
 //    <1=> ENABLE
 // <i> Defines Blocking mode support for UART4
 // <i> Default: DISABLE
-#define RTE_UART4_BLOCKING_MODE_ENABLE 0
+#define RTE_UART4_BLOCKING_MODE_ENABLE 1
 
 #endif  // UART4
 
@@ -9821,7 +9821,7 @@
 //     <1=> Enable
 // <i> define Handle Spurious Wakeup
 // <i> default: Enable
-#define PM_HANDLE_SPURIOUS_WAKEUP 1
+#define PM_HANDLE_SPURIOUS_WAKEUP 0
 // </h> Power Management (PM)
 
 #endif /* __RTE_DEVICE_H */
