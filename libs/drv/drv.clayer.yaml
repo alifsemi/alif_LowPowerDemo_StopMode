@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.3.0/tools/projmgr/schemas/clayer.schema.json
+layer:
+  description: Low Level Drivers for Alif Ensemble
+
+  add-path:
+    - .
+
+  groups:
+    - group: LL_DRV
+      files:
+        - file: drv_bkram.c
+        - file: drv_mhu.c
+        - file: soc_rst.c

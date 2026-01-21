@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.6.0/tools/projmgr/schemas/cproject.schema.json
+project:
+  groups:
+    - group: App
+      files:
+        - file: main.c
+        - file: get_int_input.c
+
+  add-path:
+    - ../app_common
+
+  output:
+    base-name: $Project$
+    type:
+      - elf
+      - bin
+
+  # linker:
+  #   - script: "../device/ensemble/RTE/Device/$Dname$_$Pname$/linker_gnu_tcm.ld.src"
+
+  layers:
+    - layer: ../device/ensemble/alif-ensemble.clayer.yml
+    - layer: ../device/ensemble/alif-stdio.clayer.yml
+    - layer: ../libs/drv/drv.clayer.yaml
+
+  packs:
+    - pack: AlifSemiconductor::Ensemble@^2.0.2
+    - pack: ARM::CMSIS

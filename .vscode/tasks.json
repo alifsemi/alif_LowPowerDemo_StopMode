@@ -47,16 +47,18 @@
             "label": "Prepare program with Security Toolkit",
             "type": "shell",
             "command": [
-                    "outputElfFilename='${command:cmsis-csolution.getBinaryFile}';",
-                    "cp \"${outputElfFilename/%???/bin}\" '${config:alif.setools.root}/build/images/alif-img.bin';",
-                    "cp './.alif/${command:cmsis-csolution.getProcessorName}_cfg.json' '${config:alif.setools.root}/alif-img.json';"
-                ],
+                "outputElfFilename='${command:cmsis-csolution.getBinaryFile}';",
+                "cp \"${outputElfFilename/%???/bin}\" '${config:alif.setools.root}/build/images/${command:cmsis-csolution.getProcessorName}_img.bin';",
+                "cp './.alif/${command:cmsis-csolution.getProcessorName}_cfg.json' '${config:alif.setools.root}/alif-img.json';",
+                "cp './.alif/app-device-config-no-hfxo.json' '${config:alif.setools.root}/build/config/app-device-config-no-hfxo.json';"
+            ],
             "windows": {
                 "command": [
                     "$outputElfFilename='${command:cmsis-csolution.getBinaryFile}';",
                     "$outputBinFilename=${outputElfFilename}.Substring(0, $outputElfFilename.Length -3) + 'bin';",
-                    "cp \"$outputBinFilename\" '${config:alif.setools.root}/build/images/alif-img.bin';",
-                    "cp './.alif/${command:cmsis-csolution.getProcessorName}_cfg.json' '${config:alif.setools.root}/alif-img.json';"
+                    "cp \"$outputBinFilename\" '${config:alif.setools.root}/build/images/${command:cmsis-csolution.getProcessorName}_img.bin';",
+                    "cp './.alif/${command:cmsis-csolution.getProcessorName}_cfg.json' '${config:alif.setools.root}/alif-img.json';",
+                    "cp './.alif/app-device-config-no-hfxo.json' '${config:alif.setools.root}/build/config/app-device-config-no-hfxo.json';"
                 ]
             },
             "problemMatcher": []
@@ -106,7 +108,30 @@
             "options": {"cwd": "${config:alif.setools.root}"},
             "command": [
                 "./app-gen-toc -f ./build/config/app-cpu-stubs.json;",
-                "./app-write-mram;",
+                "./app-write-mram;"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Install debug stubs with Security Toolkit (PLL)",
+            "type": "shell",
+            "options": {"cwd": "${config:alif.setools.root}"},
+            "command": [
+                "cp './.alif/app-cpu-stubs.json' '${config:alif.setools.root}/app-cpu-stubs.json';",
+                "./app-gen-toc -f ./build/config/app-cpu-stubs.json;",
+                "./app-write-mram;"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Install debug stubs with Security Toolkit (HFRC)",
+            "type": "shell",
+            "options": {"cwd": "${config:alif.setools.root}"},
+            "command": [
+                "cp './.alif/app-device-config-no-hfxo.json' '${config:alif.setools.root}/app-device-config-no-hfxo.json';",
+                "cp './.alif/app-cpu-stubs-hfrc.json' '${config:alif.setools.root}/app-cpu-stubs-hfrc.json';",
+                "./app-gen-toc -f ./build/config/app-cpu-stubs-hfrc.json;",
+                "./app-write-mram;"
             ],
             "problemMatcher": []
         },
