@@ -6,25 +6,15 @@ For Ensembe E1, E3, E4, E5, E6, E7 or E8
 For Ensemble E1C or Balletto B1
   - RTSS-HE logs are on LP-UART (RX P2_0 and TX P7_1)
 
-At first power-on, both cores are booted by the Secure Enclave. Since
-the HP core detects no wake events, it powers down immediately. The HE
-core also detects no wake events and continues to perform the first-time
-system setup. It configures the LPTIMER as its wakeup source and puts
-the MCU in global STOP Mode. The MCU stays in STOP Mode until the
-next LPTIMER expiration (configured for 1000 ms).
+Refer to the sample ATOC data structure at the end of this README. The "deferred" flag instructs the Secure Enclave to skip booting a core during power-on.
 
-Each LPTIMER expiration wakes up the HE core only. The HE core spends
-some time awake then returns the MCU to STOP Mode. After ten LPTIMER
-wake events the HE core uses the Message Handling Unit (MHU) to wake up
-the HP core. While waiting for a response from the HP core, the HE will
-enter deep sleep (subsystem stays on).
+At first power-on, only one core, the HE-M55, is booted by the Secure Enclave. The HE core detects that there are no pending wake events. It assumes that the MCU is being powered on for the first time and so it performs the first-time system setup. Those steps are to configure the aiPM Off Profile, initialize UART for application logging, configure the LPTIMER as its wakeup source, and finally it puts the MCU into global STOP Mode. The MCU stays in STOP Mode until the next LPTIMER expiration (configured for 1000 ms by default). Each LPTIMER expiration is a wake event that brings the MCU out of STOP Mode.
 
-When the HP core receives a message via the MHU, it will run for some
-time in a while(1) loop before returning a response to the HE core. If
-the HP does not respond in time the HE core will timeout and reset it.
+In response to the wake event, the HE-M55 core spends some time awake in a while(1) loop for 100 ms. This is just to demonstrate the HE core is awake and busy with some task. When the task is complete then the HE core returns the MCU to STOP Mode. Every tenth LPTIMER wake event the HE-M55 core uses the Message Handling Unit (MHU) to wake up the HP-M55 core. While waiting for a response from the HP core, the HE will enter deep sleep (subsystem stays on).
 
-For Ensemble E1, E1C or Balletto B1, we will only need to build a binary
-for the RTSS-HE. MCU STOP Mode is demonstrated with only one core.
+When the HP core receives a message via the MHU, it will run for some time in a while(1) loop before returning a response to the HE core. Again, this is just to demonstrate the HP core is awake and busy with some task. If the HP does not respond in time the HE core will timeout and reset it like a watchdog.
+
+For Ensemble E1, E1C or Balletto B1, we will only need to build a binary for the RTSS-HE. MCU STOP Mode is demonstrated with only one core.
 
 
 # Building the binaries
@@ -39,9 +29,27 @@ the application.
 After the binaries are built, switch to the Explorer View (CTRL+SHIFT+E).
 The binaries will be located in the out directory, for example:
 ```
-    out/
-        app_he/E7-HE/release/app_he.bin
-        app_hp/E7-HP/release/app_hp.bin
+.
+├── ...
+├── out/
+│   ├── app_he/
+│   |   ├── E1C-HE/
+│   |   |   ├── debug/app_he.bin
+│   |   |   └── release/app_he.bin
+│   |   ├── E7-HE/
+│   |   |   ├── debug/app_he.bin
+│   |   |   └── release/app_he.bin
+│   |   └── E8-HE/
+│   |       ├── debug/app_he.bin
+│   |       └── release/app_he.bin
+│   └── app_hp/
+│       ├── E7-HP/
+│       |   ├── debug/app_hp.bin
+│       |   └── release/app_hp.bin
+│       └── E8-HP/
+│           ├── debug/app_hp.bin
+│           └── release/app_hp.bin
+└── ...
 ```
 
 # Programming the binaries
@@ -55,13 +63,13 @@ Use the below json to configure your ATOC. Copy the binaries to the app-release-
     "version" : "1.0.0",
     "signed": false
   },
-  "HE_TCM": {
+  "HE_MRAM": {
     "disabled" : false,
     "binary": "M55_HE_img.bin",
-    "loadAddress": "0x58000000",
+    "mramAddress": "0x80000000",
     "version": "1.0.0",
     "cpu_id": "M55_HE",
-    "flags": ["boot","load"],
+    "flags": ["boot"],
     "signed": false
   },
   "HP_MRAM": {
@@ -70,7 +78,7 @@ Use the below json to configure your ATOC. Copy the binaries to the app-release-
     "mramAddress": "0x80200000",
     "version": "1.0.0",
     "cpu_id": "M55_HP",
-    "flags": ["boot"],
+    "flags": ["boot","deferred"],
     "signed": false
   }
 }
