@@ -20,7 +20,7 @@
     "mramAddress": "0x80200000",
     "version": "1.0.0",
     "cpu_id": "M55_HP",
-    "flags": ["boot"],
+    "flags": ["boot","deferred"],
     "signed": false
   }
 }

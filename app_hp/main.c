@@ -51,70 +51,6 @@ void MHU_RTSS_S_RX_IRQHandler()
     bk_ram_wr(&count, BKRAM_INDEX_HP_RX_CNT);
 }
 
-static void boot_from_por()
-{
-    printf("RTSS-HP first boot\r\n\n");
-    delay_ms(100);
-}
-
-static void boot_from_standby()
-{
-    uint32_t cycle_cnt;
-    bk_ram_rd(&cycle_cnt, BKRAM_INDEX_HP_CYCLES);
-    cycle_cnt++;
-    bk_ram_wr(&cycle_cnt, BKRAM_INDEX_HP_CYCLES);
-    printf("RTSS-HP resume count: %" PRIu32 "\r\n", cycle_cnt);
-
-    NVIC_EnableIRQ(41);
-    NVIC_EnableIRQ(42);
-
-    uint32_t count;
-    bk_ram_rd(&count, BKRAM_INDEX_HP_RX_CNT);
-    printf("MHU interrupt count: %" PRIu32 " (RX)\r\n\n", count);
-}
-
-static void enter_standby()
-{
-    while(1) pm_core_enter_deep_sleep_request_subsys_off();
-}
-
-static void execute_while1_rtsshp()
-{
-    uint32_t active_ms;
-    bk_ram_rd(&active_ms, BKRAM_INDEX_WHILE1);
-
-    /* while(1) */
-    active_ms += ms_ticks;
-    while(ms_ticks < active_ms);
-
-    MHU_SENDER_Set(RTSS_TX_MHU0_BASE, 0, MHU_VAL);
-}
-
-static bool PrintPendingIRQ()
-{
-    uint32_t wic_pending = 0;
-    wic_pending |= NVIC->ISPR[0];
-    wic_pending |= NVIC->ISPR[1];
-
-    /* nothing to do if IRQs 0-63 are clear */
-    if (wic_pending == 0) return false;
-
-    /* Note: IRQ lines are shared in this multicore system,
-     * you will see pending IRQs not meant for this core. */
-    for (uint32_t i = 0; i < 64; i++) {
-        if (NVIC_GetPendingIRQ(i)) {
-            printf("IRQ%u is pending\r\n", i);
-        }
-    }
-
-    /* For example: only MHU0 RX should wake the HP core */
-    if (NVIC_GetPendingIRQ(41)) {
-        return true;
-    }
-
-    return false;
-}
-
 static void uart_init()
 {
 #if defined(RTE_CMSIS_Compiler_STDIN_Custom)
@@ -136,7 +72,49 @@ static void uart_update()
 #endif
 }
 
-int main (void)
+static bool GetPendingIRQ()
+{
+    uint32_t wic_pending = 0;
+    wic_pending |= NVIC->ISPR[0];
+    wic_pending |= NVIC->ISPR[1];
+
+    /* nothing to do if IRQs 0-63 are clear */
+    if (wic_pending == 0) return false;
+
+    /* For example: only MHU0 RX should wake the HP core */
+    if (NVIC_GetPendingIRQ(41)) {
+        return true;
+    }
+
+    return false;
+}
+
+static void PrintPendingIRQ()
+{
+    /* Note: IRQ lines are shared in this multicore system,
+     * you may see pending IRQs not meant for this core. */
+    for (uint32_t i = 0; i < 64; i++) {
+        if (NVIC_GetPendingIRQ(i)) {
+            printf("IRQ%u is pending\r\n", i);
+        }
+    }
+}
+
+static void boot_from_por()
+{
+    ms_ticks = 0;
+    SystemCoreClock = 76800000;
+    SystemAXIClock = 76800000;
+    SystemAHBClock = SystemAXIClock >> 1;
+    SystemAPBClock = SystemAXIClock >> 2;
+    SystemREFClock = 76800000;
+    SysTick_Config(SystemCoreClock/1000);
+
+    uart_init();
+    printf("RTSS-HP un-expected boot\r\n\n");
+}
+
+static void boot_from_stop()
 {
     ms_ticks = 0;
     SystemCoreClock = 76800000;
@@ -147,15 +125,53 @@ int main (void)
     SysTick_Config(SystemCoreClock/1000);
     uart_init();
 
-    bool wake_event = PrintPendingIRQ();
+    uint32_t cycle_cnt;
+    bk_ram_rd(&cycle_cnt, BKRAM_INDEX_HP_CYCLES);
+    cycle_cnt++;
+    bk_ram_wr(&cycle_cnt, BKRAM_INDEX_HP_CYCLES);
+    printf("RTSS-HP resume count: %" PRIu32 "\r\n", cycle_cnt);
+
+    PrintPendingIRQ();
+    NVIC_EnableIRQ(41);
+    NVIC_EnableIRQ(42);
+
+    uint32_t count;
+    bk_ram_rd(&count, BKRAM_INDEX_HP_RX_CNT);
+    printf("MHU interrupt count: %" PRIu32 " (RX)\r\n\n", count);
+}
+
+static void enter_stop()
+{
+    delay_ms(5); /* small delay for UART prints to finish */
+    pinconf_set(PRINTF_UART_CONSOLE_RX_PORT_NUM, PRINTF_UART_CONSOLE_RX_PIN, 0, 0);
+    pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM, PRINTF_UART_CONSOLE_TX_PIN, 0, 0);
+
+    while(1) pm_core_enter_deep_sleep_request_subsys_off();
+}
+
+static void execute_while1_rtsshp()
+{
+    uint32_t active_ms;
+    bk_ram_rd(&active_ms, BKRAM_INDEX_WHILE1);
+
+    /* while(1) */
+    active_ms += ms_ticks;
+    while(ms_ticks < active_ms);
+
+    MHU_SENDER_Set(RTSS_TX_MHU0_BASE, 0, MHU_VAL);
+}
+
+int main (void)
+{
+    bool wake_event = GetPendingIRQ();
     if (wake_event) {
-        boot_from_standby();
+        boot_from_stop();
         execute_while1_rtsshp();
-        enter_standby();
+        enter_stop();
     }
     else {
         boot_from_por();
-        enter_standby();
+        enter_stop();
     }
     return 0;
 }
