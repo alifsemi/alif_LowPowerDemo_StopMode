@@ -25,7 +25,11 @@ volatile uint32_t lpt_irq;
 #define MHU_VAL 0x1234
 volatile uint32_t mhu_rx_value;
 
+#ifdef M55_HE_E1C
+#define ENABLE_SE_BUG_FIXES 0
+#else
 #define ENABLE_SE_BUG_FIXES 1
+#endif
 
 volatile uint32_t ms_ticks;
 void SysTick_Handler (void) { ms_ticks++; }
@@ -143,6 +147,7 @@ static void boot_from_por()
     runp.dcdc_mode = DCDC_MODE_PWM;
     runp.dcdc_voltage = 825;
     runp.power_domains = PD_SYST_MASK;      // set the SYSTOP power domain request
+    // runp.power_domains |= PD_DBSS_MASK;   // uncomment this line to enable JTAG
     runp.memory_blocks = MRAM_MASK | BACKUP4K_MASK;
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     ret = SERVICES_set_run_cfg(se_services_s_handle, &runp, &response);
@@ -170,6 +175,9 @@ static void boot_from_por()
     if (ret || response) while(1);
 
 #if ENABLE_SE_BUG_FIXES
+    /* Secure Enclave will normally set these register as it transitions
+     * the MCU to STOP Mode. However, in the enter_stop() function, we
+     * bypass the Secure Enclave and force STOP Mode */
     *(volatile uint32_t *)(0x1A60A008UL) = WE_LPTIMER;
     *(volatile uint32_t *)(0x1A60A020UL) = SCB->VTOR;
     *(volatile uint32_t *)(0x1A60A024UL) = SCB->VTOR;
@@ -253,8 +261,13 @@ static void enter_stop()
     delay_ms(5); /* small delay for UART prints to finish */
 
 #if ENABLE_SE_BUG_FIXES
+    /* M55 core bypasses the Secure Enclave and places the
+     * MCU in STOP Mode by writing to the register directly */
     STOP_MODE->VBAT_STOP_MODE_REG = 1;
+    while(1) pm_core_enter_deep_sleep();
 #else
+    /* Secure Enclave should place the MCU in STOP Mode
+     * after all M55 cores are in subsystem off mode */
     while(1) pm_core_enter_deep_sleep_request_subsys_off();
 #endif
 }
@@ -270,7 +283,6 @@ static void execute_while1()
 }
 
 #ifndef M55_HE_E1C
-#include <soc_rst.h>
 static void execute_while1_rtsshp()
 {
     uint32_t cycle_cnt;
@@ -302,7 +314,10 @@ static void execute_while1_rtsshp()
 
     if (lpt_irq) {
         printf("RTSS-HE continuing without reply\r\n\n");
-        reset_external_system0(APP_MRAM_HP_BASE);
+        ret = SERVICES_boot_reset_cpu(se_services_s_handle, EXTSYS_0, &response);
+        if (ret || response) {
+            printf("\r\nRTSS-HE services error resetting the HP!!!\r\n\n");
+        }
     }
     else {
         printf("RTSS-HE received message from HP\r\n\n");
