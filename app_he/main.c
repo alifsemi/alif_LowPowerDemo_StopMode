@@ -258,6 +258,7 @@ static void boot_from_stop()
 
 static void enter_stop()
 {
+    printf("\r\nEntering stop mode\r\n\n");
     delay_ms(5); /* small delay for UART prints to finish */
 
 #if ENABLE_SE_BUG_FIXES
@@ -292,11 +293,7 @@ static void execute_while1_rtsshp()
     if (cycle_cnt % 10) return;
     printf("RTSS-HE sending message to HP\r\n");
 
-    /* Initialize the SE services */
     uint32_t ret, response;
-    se_services_port_init();
-
-    /* needed when you boot from STOP Mode */
     ret = SERVICES_boot_process_toc_entry(se_services_s_handle, "HP_MRAM", &response);
     if (ret || response) {
         printf("\r\nRTSS-HE services error booting the HP!!!\r\n\n");
@@ -332,7 +329,14 @@ int main (void)
         boot_from_stop();
         execute_while1();
 #ifndef M55_HE_E1C
+        /* Initialize the SE services */
+        se_services_port_init();
         execute_while1_rtsshp();
+        delay_ms(10);
+        execute_while1_rtsshp();
+        delay_ms(10);
+        execute_while1_rtsshp();
+        delay_ms(10);
 #endif
         enter_stop();
     }
