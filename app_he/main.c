@@ -319,6 +319,7 @@ static void execute_while1_rtsshp()
     else {
         printf("RTSS-HE received message from HP\r\n\n");
     }
+    delay_ms(10);
 }
 #endif
 
@@ -332,11 +333,8 @@ int main (void)
         /* Initialize the SE services */
         se_services_port_init();
         execute_while1_rtsshp();
-        delay_ms(10);
         execute_while1_rtsshp();
-        delay_ms(10);
         execute_while1_rtsshp();
-        delay_ms(10);
 #endif
         enter_stop();
     }
