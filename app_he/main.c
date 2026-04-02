@@ -28,6 +28,8 @@ volatile uint32_t mhu_rx_value;
 #ifdef M55_HE_E1C
 #define ENABLE_SE_BUG_FIXES 0
 #else
+/* SE Firmware v1.110.0 and newer do not need the bug fixes,
+ * you may set this to 0 if the firmware is updated */
 #define ENABLE_SE_BUG_FIXES 1
 #endif
 
@@ -87,7 +89,7 @@ void MHU_RTSS_S_RX_IRQHandler()
 
 static void uart_init()
 {
-    delay_ms(1);
+    delay_ms(2);
 #if defined(RTE_CMSIS_Compiler_STDIN_Custom)
     stdin_init();
 #endif
@@ -148,7 +150,7 @@ static void boot_from_por()
     runp.dcdc_voltage = 825;
     runp.power_domains = PD_SYST_MASK;      // set the SYSTOP power domain request
     // runp.power_domains |= PD_DBSS_MASK;   // uncomment this line to enable JTAG
-    runp.memory_blocks = MRAM_MASK | BACKUP4K_MASK;
+    runp.memory_blocks = MRAM_MASK | BACKUP4K_MASK | SERAM_MASK;
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     ret = SERVICES_set_run_cfg(se_services_s_handle, &runp, &response);
     if (ret || response) while(1);
@@ -229,6 +231,12 @@ static void boot_from_por()
 
 static void boot_from_stop()
 {
+#if defined(ENSEMBLE_SOC_GEN2)
+    /* M55 core needs to set this bit after waking from stop mode
+     * however the Secure Enclave v1.110.0 and newer handles this for you */
+    *(volatile uint32_t*)0x1A60C014 = 1;
+#endif
+
     ms_ticks = 0;
     SystemCoreClock = 76800000;
     SystemAXIClock = 76800000;
@@ -261,11 +269,17 @@ static void enter_stop()
     printf("\r\nEntering stop mode\r\n\n");
     delay_ms(5); /* small delay for UART prints to finish */
 
+#if defined(ENSEMBLE_SOC_GEN2)
+    /* M55 core needs to clear this bit before entering stop mode
+     * however the Secure Enclave v1.110.0 and newer handles this for you */
+    *(volatile uint32_t*)0x1A60C014 = 0;
+#endif
+
 #if ENABLE_SE_BUG_FIXES
     /* M55 core bypasses the Secure Enclave and places the
      * MCU in STOP Mode by writing to the register directly */
     STOP_MODE->VBAT_STOP_MODE_REG = 1;
-    while(1) pm_core_enter_deep_sleep();
+    while(1) pm_core_enter_normal_sleep();
 #else
     /* Secure Enclave should place the MCU in STOP Mode
      * after all M55 cores are in subsystem off mode */
@@ -318,8 +332,8 @@ static void execute_while1_rtsshp()
     }
     else {
         printf("RTSS-HE received message from HP\r\n\n");
+        delay_ms(10);
     }
-    delay_ms(10);
 }
 #endif
 
