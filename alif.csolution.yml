@@ -22,6 +22,14 @@ solution:
       define:
         - "CORE_M55_HE"
         - "M55_HE"
+      target-set:
+        - set:
+          images:
+            - project-context: app_he.release
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
     - type: E7-HP
       device: Alif Semiconductor::AE722F80F55D5LS:M55_HP
@@ -29,6 +37,14 @@ solution:
       define:
         - "CORE_M55_HP"
         - "M55_HP"
+      target-set:
+        - set:
+          images:
+            - project-context: app_hp.release
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
     - type: E1C-HE
       device: Alif Semiconductor::AE1C1F4051920PH:M55_HE
@@ -38,6 +54,14 @@ solution:
         - "CORE_M55_HE"
         - "M55_HE_E1C"
         - "M55_HE"
+      target-set:
+        - set:
+          images:
+            - project-context: app_he.release
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
     - type: E8-HE
       device: Alif Semiconductor::AE822FA0E5597LS0:M55_HE
@@ -46,6 +70,14 @@ solution:
         - "ENSEMBLE_SOC_GEN2"
         - "CORE_M55_HE"
         - "M55_HE"
+      target-set:
+        - set:
+          images:
+            - project-context: app_he.release
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
     - type: E8-HP
       device: Alif Semiconductor::AE822FA0E5597LS0:M55_HP
@@ -54,6 +86,14 @@ solution:
         - "ENSEMBLE_SOC_GEN2"
         - "CORE_M55_HP"
         - "M55_HP"
+      target-set:
+        - set:
+          images:
+            - project-context: app_hp.release
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
   build-types:
     - type: debug

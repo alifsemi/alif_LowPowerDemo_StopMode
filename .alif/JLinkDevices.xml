@@ -11,7 +11,10 @@
   <Device>
     <ChipInfo Vendor="AlifSemiconductor" Name="AE302F80F55D5_HP" Aliases="AE302F80F55D5LE_M55_HP; AE302F80F55D5AE_M55_HP" />
   </Device>
-  <Device InheritFrom="AE1C1F4051920PH">
-    <ChipInfo Name="AE1C1F4051920PH0_M55_HE"/>
+  <Device>
+    <ChipInfo Vendor="AlifSemiconductor" Name="AE302F80F55D5_HP" Aliases="AE302F80F55D5LE_M55_HP; AE302F80F55D5AE_M55_HP" />
+  </Device>
+  <Device>
+    <ChipInfo Vendor="AlifSemiconductor" Name="AE1C1F4051920PH" Aliases="AE1C1F4051920PH_M55_HE; AE1C1F4051920PH0_M55_HE" />
   </Device>
 </DataBase>

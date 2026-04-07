@@ -6,6 +6,25 @@ For Ensembe E1, E3, E4, E5, E6, E7 or E8
 For Ensemble E1C or Balletto B1
   - RTSS-HE logs are on LP-UART (RX P2_0 and TX P7_1)
 
+Changing the UART instance and pinmux is done via the retarget_config.h file.
+```
+    .
+    ├── ...
+    ├── device/
+    │   ├── ensemble/
+    │   |   ├── RTE/
+    │   │   │   ├── Services/
+    │   │   |   │   ├── AE1C1F4051920PH_M55_HE/retarget_config.h
+    │   │   |   │   ├── AE722F80F55D5LS_M55_HE/retarget_config.h
+    │   │   |   │   ├── AE722F80F55D5LS_M55_HP/retarget_config.h
+    │   │   |   |   ├── AE822FA0E5597LS0_M55_HE/retarget_config.h
+    │   │   |   |   └── AE822FA0E5597LS0_M55_HP/retarget_config.h
+    │   │   │   └── ...
+    │   │   └── ...
+    │   └── ...
+    └── ...
+```
+
 Refer to the sample ATOC data structure at the end of this README. The "deferred" flag instructs the Secure Enclave to skip booting a core during power-on.
 
 At first power-on, only one core, the HE-M55, is booted by the Secure Enclave. The HE core detects that there are no pending wake events. It assumes that the MCU is being powered on for the first time and so it performs the first-time system setup. Those steps are to configure the aiPM Off Profile, initialize UART for application logging, configure the LPTIMER as its wakeup source, and finally it puts the MCU into global STOP Mode. The MCU stays in STOP Mode until the next LPTIMER expiration (configured for 1000 ms by default). Each LPTIMER expiration is a wake event that brings the MCU out of STOP Mode.
@@ -52,6 +71,12 @@ The binaries will be located in the out directory, for example:
 └── ...
 ```
 
+
+# Debugging the binaries
+- Switch to the Debug and Run view (CTRL+SHIFT+D) and press F5
+- **TIP:** You may want to use SE tools integration to install the CPU stubs
+
+
 # Programming the binaries
 Use the below json to configure your ATOC. Copy the binaries to the app-release-exec/build/images folder and proceed with the usual steps of generating the ATOC and writing to MRAM.
 
@@ -83,3 +108,7 @@ Use the below json to configure your ATOC. Copy the binaries to the app-release-
   }
 }
 ```
+
+
+# Power Measurement on Alif DevKit
+Refer to the power measurement points described in the [aiPM Examples User Guide](https://github.com/alifsemi/alif_ensemble-vscode-aiPMExamples/blob/main/Documentation/aiPM_Examples.md)
