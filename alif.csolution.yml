@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.6.0/tools/projmgr/schemas/csolution.schema.json
 solution:
-  created-for: cmsis-toolbox@2.6.0
+  created-for: CMSIS-Toolbox@2.12.0
   cdefault:
 
   # List of tested compilers that can be selected
@@ -27,7 +27,7 @@ solution:
           images:
             - project-context: app_he.release
           debugger:
-            name: JLink Server
+            name: J-Link Server
             port: 3333
             protocol: swd
 
@@ -42,7 +42,7 @@ solution:
           images:
             - project-context: app_hp.release
           debugger:
-            name: JLink Server
+            name: J-Link Server
             port: 3333
             protocol: swd
 
@@ -59,7 +59,7 @@ solution:
           images:
             - project-context: app_he.release
           debugger:
-            name: JLink Server
+            name: J-Link Server
             port: 3333
             protocol: swd
 
@@ -75,7 +75,7 @@ solution:
           images:
             - project-context: app_he.release
           debugger:
-            name: JLink Server
+            name: J-Link Server
             port: 3333
             protocol: swd
 
@@ -91,7 +91,7 @@ solution:
           images:
             - project-context: app_hp.release
           debugger:
-            name: JLink Server
+            name: J-Link Server
             port: 3333
             protocol: swd
 
