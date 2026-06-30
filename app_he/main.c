@@ -1,7 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <inttypes.h>
 
 #include <alif.h>
@@ -130,7 +129,7 @@ static void PrintPendingIRQ()
      * you may see pending IRQs not meant for this core. */
     for (uint32_t i = 0; i < 64; i++) {
         if (NVIC_GetPendingIRQ(i)) {
-            printf("IRQ%u is pending\r\n", i);
+            printf("IRQ%lu is pending\r\n", i);
         }
     }
 }
@@ -199,11 +198,11 @@ static void boot_from_por()
 
     printf("Wake up period in milliseconds (e.g. 10ms to 10000ms)\r\n");
     printf("> 1000");
-    int32_t sleep_ms = 1000;//get_int_input();
+    uint32_t sleep_ms = 1000;//get_int_input();
 
     printf("\r\nTime spent running while(1) (e.g. 1ms to 1000ms)\r\n");
     printf("> 100");
-    int32_t active_ms = 100;//get_int_input();
+    uint32_t active_ms = 100;//get_int_input();
 
     printf("\r\nStarting Power cycle demo\r\n\n");
 
