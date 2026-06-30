@@ -1,8 +1,8 @@
 {
     "recommendations": [
-        "arm.environment-manager",
         "arm.cmsis-csolution",
-        "ms-vscode.cpptools-extension-pack",
+        "arm.environment-manager",
+        "llvm-vs-code-extensions.vscode-clangd",
         "marus25.cortex-debug"
     ]
 }
