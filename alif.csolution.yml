@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.6.0/tools/projmgr/schemas/csolution.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.12.0/tools/projmgr/schemas/csolution.schema.json
 solution:
   created-for: CMSIS-Toolbox@2.12.0
   cdefault:
@@ -11,7 +11,7 @@ solution:
   compiler: GCC
 
   packs:
-    - pack: AlifSemiconductor::Ensemble@^2.0.2
+    - pack: AlifSemiconductor::Ensemble@2.1.0
     - pack: ARM::CMSIS-Compiler@^2.0.0
     - pack: ARM::CMSIS@^6.0.0
 
@@ -26,10 +26,6 @@ solution:
         - set:
           images:
             - project-context: app_he.release
-          debugger:
-            name: J-Link Server
-            port: 3333
-            protocol: swd
 
     - type: E7-HP
       device: Alif Semiconductor::AE722F80F55D5LS:M55_HP
@@ -41,13 +37,9 @@ solution:
         - set:
           images:
             - project-context: app_hp.release
-          debugger:
-            name: J-Link Server
-            port: 3333
-            protocol: swd
 
     - type: E1C-HE
-      device: Alif Semiconductor::AE1C1F4051920PH:M55_HE
+      device: Alif Semiconductor::AE1C1F4051920PH0:M55_HE
       board: Alif Semiconductor::DevKit-E1C
       define:
         - "ENSEMBLE_SOC_E1C"
@@ -58,10 +50,6 @@ solution:
         - set:
           images:
             - project-context: app_he.release
-          debugger:
-            name: J-Link Server
-            port: 3333
-            protocol: swd
 
     - type: E8-HE
       device: Alif Semiconductor::AE822FA0E5597LS0:M55_HE
@@ -74,10 +62,6 @@ solution:
         - set:
           images:
             - project-context: app_he.release
-          debugger:
-            name: J-Link Server
-            port: 3333
-            protocol: swd
 
     - type: E8-HP
       device: Alif Semiconductor::AE822FA0E5597LS0:M55_HP
@@ -90,10 +74,6 @@ solution:
         - set:
           images:
             - project-context: app_hp.release
-          debugger:
-            name: J-Link Server
-            port: 3333
-            protocol: swd
 
   build-types:
     - type: debug
@@ -119,6 +99,3 @@ solution:
       for-context:
         - +E7-HP
         - +E8-HP
-    - project: blinky/blinky.cproject.yml
-    - project: hello/hello.cproject.yml
-    - project: hello_rtt/hello_rtt.cproject.yml
