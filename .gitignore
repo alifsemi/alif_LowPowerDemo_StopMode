@@ -5,3 +5,5 @@ tmp/
 *.cbuild.yml
 *.clangd
 RTE_Components.h
+cmsis.json
+settings.json
