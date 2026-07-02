@@ -1,7 +1,5 @@
-#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <inttypes.h>
 
 #include <alif.h>
@@ -95,7 +93,7 @@ static void PrintPendingIRQ()
      * you may see pending IRQs not meant for this core. */
     for (uint32_t i = 0; i < 64; i++) {
         if (NVIC_GetPendingIRQ(i)) {
-            printf("IRQ%u is pending\r\n", i);
+            printf("IRQ%" PRIu32 " is pending\r\n", i);
         }
     }
 }

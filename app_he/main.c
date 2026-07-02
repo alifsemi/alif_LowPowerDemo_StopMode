@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -129,7 +128,7 @@ static void PrintPendingIRQ()
      * you may see pending IRQs not meant for this core. */
     for (uint32_t i = 0; i < 64; i++) {
         if (NVIC_GetPendingIRQ(i)) {
-            printf("IRQ%lu is pending\r\n", i);
+            printf("IRQ%" PRIu32 " is pending\r\n", i);
         }
     }
 }
@@ -216,7 +215,7 @@ static void boot_from_por()
     bk_ram_wr(&bk_data, BKRAM_INDEX_FIRSTBOOT);
     bk_ram_wr(&active_ms, BKRAM_INDEX_WHILE1);
 
-    uint32_t lptimer_count = roundf(sleep_ms * 32.768) - 1;
+    uint32_t lptimer_count = (((uint64_t)sleep_ms * 32768 + 500) / 1000) - 1;
     LPTIMER_Type *lptimer = (LPTIMER_Type *) LPTIMER_BASE;
     lptimer_load_count(lptimer, LPT_CH, &lptimer_count);
     lptimer_set_mode_userdefined(lptimer, LPT_CH);
