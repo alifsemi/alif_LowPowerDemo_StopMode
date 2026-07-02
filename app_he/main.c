@@ -10,6 +10,8 @@
 #include <drv_bkram.h>
 #include <drv_mhu.h>
 #include <lptimer.h>
+#include <pinconf.h>
+#include <uart.h>
 #include <pm.h>
 
 #if defined(RTE_CMSIS_Compiler_STDIN) || defined(RTE_CMSIS_Compiler_STDOUT)
@@ -35,6 +37,10 @@ volatile uint32_t ms_ticks;
 void SysTick_Handler (void) { ms_ticks++; }
 void delay_ms (uint32_t msec) { msec += ms_ticks; while(ms_ticks < msec) __WFI(); }
 extern int32_t get_int_input();
+
+static void uart_init();
+static void uart_update();
+static void uart_deinit();
 
 void LPTIMER0_IRQHandler()
 {
@@ -85,26 +91,6 @@ void MHU_RTSS_S_RX_IRQHandler()
     bk_ram_wr(&count, BKRAM_INDEX_HE_RX_CNT);
 }
 
-static void uart_init()
-{
-    delay_ms(2);
-#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
-    stdin_init();
-#endif
-#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    stdout_init();
-#endif
-}
-
-/* call this function after any change to SystemCoreClock */
-#include <uart.h>
-static void uart_update()
-{
-#if defined(RTE_CMSIS_Compiler_STDIN_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    uart_set_baudrate((UART_Type*)LPUART_BASE, SystemCoreClock, PRINTF_UART_CONSOLE_BAUD_RATE);
-#endif
-}
-
 static bool GetPendingIRQ()
 {
     uint32_t wic_pending = 0;
@@ -149,6 +135,12 @@ static void boot_from_por()
     runp.power_domains = PD_SYST_MASK;      // set the SYSTOP power domain request
     // runp.power_domains |= PD_DBSS_MASK;   // uncomment this line to enable JTAG
     runp.memory_blocks = MRAM_MASK | BACKUP4K_MASK | SERAM_MASK;
+#if defined(M55_HE)
+    runp.memory_blocks |= SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK;
+#if defined(M55_HE_E1C)
+    runp.memory_blocks |= SRAM4_3_MASK | SRAM5_3_MASK;
+#endif
+#endif
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     ret = SERVICES_set_run_cfg(se_services_s_handle, &runp, &response);
     if (ret || response) while(1);
@@ -221,7 +213,6 @@ static void boot_from_por()
     lptimer_set_mode_userdefined(lptimer, LPT_CH);
     lptimer_enable_counter(lptimer, LPT_CH);
     lptimer_clear_interrupt(lptimer, LPT_CH);
-    lptimer_clear_interrupt(lptimer, LPT_CH);
 
     NVIC_ClearPendingIRQ(60 + LPT_CH);
     NVIC_EnableIRQ(60 + LPT_CH);
@@ -265,7 +256,7 @@ static void boot_from_stop()
 static void enter_stop()
 {
     printf("\r\nEntering stop mode\r\n\n");
-    delay_ms(5); /* small delay for UART prints to finish */
+    uart_deinit();
 
 #if defined(ENSEMBLE_SOC_GEN2)
     /* M55 core needs to clear this bit before entering stop mode
@@ -306,7 +297,8 @@ static void execute_while1_rtsshp()
     printf("RTSS-HE sending message to HP\r\n");
 
     uint32_t ret, response;
-    ret = SERVICES_boot_process_toc_entry(se_services_s_handle, "HP_MRAM", &response);
+    const uint8_t image_id[8] = "HP_MRAM\0";
+    ret = SERVICES_boot_process_toc_entry(se_services_s_handle, image_id, &response);
     if (ret || response) {
         printf("\r\nRTSS-HE services error booting the HP!!!\r\n\n");
     }
@@ -330,7 +322,6 @@ static void execute_while1_rtsshp()
     }
     else {
         printf("RTSS-HE received message from HP\r\n\n");
-        delay_ms(10);
     }
 }
 #endif
@@ -355,4 +346,37 @@ int main (void)
         enter_stop();
     }
     return 0;
+}
+
+static void uart_init()
+{
+    delay_ms(2);
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
+    stdin_init();
+#endif
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    stdout_init();
+#endif
+}
+
+/* call this function after any change to SystemCoreClock */
+static void uart_update()
+{
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    uart_set_baudrate((UART_Type*)LPUART_BASE, SystemCoreClock, PRINTF_UART_CONSOLE_BAUD_RATE);
+#endif
+}
+
+static void uart_deinit()
+{
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
+    pinconf_set(PRINTF_UART_CONSOLE_RX_PORT_NUM, PRINTF_UART_CONSOLE_RX_PIN,
+        0, PADCTRL_DRIVER_DISABLED_PULL_UP);
+#endif
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    UART_Type *uart = (UART_Type*)LPUART_BASE;
+    while (!(uart->UART_LSR & UART_LSR_TRANSMITTER_EMPTY));
+    pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM, PRINTF_UART_CONSOLE_TX_PIN,
+        0, PADCTRL_DRIVER_DISABLED_PULL_UP);
+#endif
 }
