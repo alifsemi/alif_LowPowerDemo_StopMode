@@ -136,10 +136,11 @@ static void boot_from_por()
     runp.power_domains = PD_SYST_MASK;      // set the SYSTOP power domain request
     // runp.power_domains |= PD_DBSS_MASK;   // uncomment this line to enable JTAG
     runp.memory_blocks = MRAM_MASK | BACKUP4K_MASK | SERAM_MASK;
+    /* retaining RTSS-HE TCM is optional */
 #if defined(M55_HE)
-    runp.memory_blocks |= SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK;
+    // runp.memory_blocks |= SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK;
 #if defined(M55_HE_E1C)
-    runp.memory_blocks |= SRAM4_3_MASK | SRAM5_3_MASK;
+    // runp.memory_blocks |= SRAM4_3_MASK | SRAM5_3_MASK;
 #endif
 #endif
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
@@ -151,10 +152,11 @@ static void boot_from_por()
     offp.stby_clk_src = CLK_SRC_HFRC;
     offp.stby_clk_freq = SCALED_FREQ_RC_STDBY_0_6_MHZ;
     offp.memory_blocks  = MRAM_MASK | BACKUP4K_MASK | SERAM_MASK;
+    /* retaining RTSS-HE TCM is optional */
 #if defined(M55_HE)
-    offp.memory_blocks |= SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK;
+    // offp.memory_blocks |= SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK;
 #if defined(M55_HE_E1C)
-    offp.memory_blocks |= SRAM4_3_MASK | SRAM5_3_MASK;
+    // offp.memory_blocks |= SRAM4_3_MASK | SRAM5_3_MASK;
 #endif
 #endif
     offp.dcdc_mode = DCDC_MODE_PWM;
