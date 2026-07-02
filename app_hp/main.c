@@ -10,9 +10,13 @@
 #include <drv_bkram.h>
 #include <drv_mhu.h>
 #include <lptimer.h>
+#include <pinconf.h>
+#include <uart.h>
 #include <pm.h>
 
 #if defined(RTE_CMSIS_Compiler_STDIN) || defined(RTE_CMSIS_Compiler_STDOUT)
+#define _UART_BASE_(n) UART##n##_BASE
+#define UART_BASE(n) _UART_BASE_(n)
 #include "retarget_init.h"
 #include "retarget_config.h"
 #endif
@@ -23,6 +27,10 @@ volatile uint32_t mhu_rx_value;
 volatile uint32_t ms_ticks;
 void SysTick_Handler (void) { ms_ticks++; }
 void delay_ms (uint32_t msec) { msec += ms_ticks; while(ms_ticks < msec) __WFI(); }
+
+static void uart_init();
+static void uart_update();
+static void uart_deinit();
 
 void MHU_RTSS_S_TX_IRQHandler()
 {
@@ -47,27 +55,6 @@ void MHU_RTSS_S_RX_IRQHandler()
     bk_ram_rd(&count, BKRAM_INDEX_HP_RX_CNT);
     count++;
     bk_ram_wr(&count, BKRAM_INDEX_HP_RX_CNT);
-}
-
-static void uart_init()
-{
-#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
-    stdin_init();
-#endif
-#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    stdout_init();
-#endif
-}
-
-/* call this function after making clock tree changes */
-#include <uart.h>
-static void uart_update()
-{
-#if defined(RTE_CMSIS_Compiler_STDIN_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-#define _UART_BASE_(n)      UART##n##_BASE
-#define UART_BASE(n)        _UART_BASE_(n)
-    uart_set_baudrate((UART_Type*)UART_BASE(PRINTF_UART_CONSOLE), SystemAPBClock, PRINTF_UART_CONSOLE_BAUD_RATE);
-#endif
 }
 
 static bool GetPendingIRQ()
@@ -107,8 +94,8 @@ static void boot_from_por()
     SystemAPBClock = SystemAXIClock >> 2;
     SystemREFClock = 76800000;
     SysTick_Config(SystemCoreClock/1000);
-
     uart_init();
+
     printf("RTSS-HP un-expected boot\r\n\n");
 }
 
@@ -140,10 +127,7 @@ static void boot_from_stop()
 
 static void enter_stop()
 {
-    delay_ms(5); /* small delay for UART prints to finish */
-    pinconf_set(PRINTF_UART_CONSOLE_RX_PORT_NUM, PRINTF_UART_CONSOLE_RX_PIN, 0, 0);
-    pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM, PRINTF_UART_CONSOLE_TX_PIN, 0, 0);
-
+    uart_deinit();
     while(1) pm_core_enter_deep_sleep_request_subsys_off();
 }
 
@@ -172,4 +156,36 @@ int main (void)
         enter_stop();
     }
     return 0;
+}
+
+static void uart_init()
+{
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
+    stdin_init();
+#endif
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    stdout_init();
+#endif
+}
+
+/* call this function after making clock tree changes */
+static void uart_update()
+{
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    uart_set_baudrate((UART_Type*)UART_BASE(PRINTF_UART_CONSOLE), SystemAPBClock, PRINTF_UART_CONSOLE_BAUD_RATE);
+#endif
+}
+
+static void uart_deinit()
+{
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
+    pinconf_set(PRINTF_UART_CONSOLE_RX_PORT_NUM, PRINTF_UART_CONSOLE_RX_PIN,
+        0, PADCTRL_DRIVER_DISABLED_PULL_UP);
+#endif
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    UART_Type *uart = (UART_Type*)UART_BASE(PRINTF_UART_CONSOLE);
+    while (!(uart->UART_LSR & UART_LSR_TRANSMITTER_EMPTY));
+    pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM, PRINTF_UART_CONSOLE_TX_PIN,
+        0, PADCTRL_DRIVER_DISABLED_PULL_UP);
+#endif
 }
