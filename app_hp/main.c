@@ -9,6 +9,7 @@
 #include <sys_clocks.h>
 #include <drv_bkram.h>
 #include <drv_mhu.h>
+#include <soc_clk.h>
 #include <lptimer.h>
 #include <pinconf.h>
 #include <uart.h>
@@ -87,12 +88,11 @@ static void PrintPendingIRQ()
 
 static void boot_from_por()
 {
+    /* get status of clock tree */
+    CoreClockUpdate();
+    SystBusClkUpdate();
+
     ms_ticks = 0;
-    SystemCoreClock = 76800000;
-    SystemAXIClock = 76800000;
-    SystemAHBClock = SystemAXIClock >> 1;
-    SystemAPBClock = SystemAXIClock >> 2;
-    SystemREFClock = 76800000;
     SysTick_Config(SystemCoreClock/1000);
     uart_init();
 
@@ -101,12 +101,11 @@ static void boot_from_por()
 
 static void boot_from_stop()
 {
+    /* get status of clock tree */
+    CoreClockUpdate();
+    SystBusClkUpdate();
+
     ms_ticks = 0;
-    SystemCoreClock = 76800000;
-    SystemAXIClock = 76800000;
-    SystemAHBClock = SystemAXIClock >> 1;
-    SystemAPBClock = SystemAXIClock >> 2;
-    SystemREFClock = 76800000;
     SysTick_Config(SystemCoreClock/1000);
     uart_init();
 
