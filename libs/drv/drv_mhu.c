@@ -1,5 +1,3 @@
-#include <RTE_Components.h>
-#include CMSIS_device_header
 #include "drv_mhu.h"
 
 /* Set bits in the sending channel to generate an interrupt */
