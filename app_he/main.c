@@ -223,8 +223,7 @@ static void boot_from_por()
 static void boot_from_stop()
 {
 #if defined(ENSEMBLE_SOC_GEN2)
-    /* M55 core needs to set this bit after waking from stop mode
-     * however the Secure Enclave v1.110.0 and newer handles this for you */
+    /* M55 core needs to set this bit after waking from stop mode */
     *(volatile uint32_t*)0x1A60C014 = 1;
 #endif
 
@@ -260,8 +259,7 @@ static void enter_stop()
     uart_deinit();
 
 #if defined(ENSEMBLE_SOC_GEN2)
-    /* M55 core needs to clear this bit before entering stop mode
-     * however the Secure Enclave v1.110.0 and newer handles this for you */
+    /* M55 core needs to clear this bit before entering stop mode */
     *(volatile uint32_t*)0x1A60C014 = 0;
 #endif
 

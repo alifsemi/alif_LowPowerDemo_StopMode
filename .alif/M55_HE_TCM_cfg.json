@@ -1,0 +1,27 @@
+{
+  "DEVICE": {
+    "disabled" : false,
+    "binary": "app-device-config-no-hfxo.json",
+    "version" : "1.0.0",
+    "signed": false
+  },
+  "HE_TCM": {
+    "disabled" : false,
+    "binary": "M55_HE_img.bin",
+    "loadAddress": "0x58000000",
+    "mramAddress": "0x80000000",
+    "version": "1.0.0",
+    "cpu_id": "M55_HE",
+    "flags": ["boot","load"],
+    "signed": false
+  },
+  "HP_MRAM": {
+    "disabled" : true,
+    "binary": "M55_HP_img.bin",
+    "mramAddress": "0x80200000",
+    "version": "1.0.0",
+    "cpu_id": "M55_HP",
+    "flags": ["boot","deferred"],
+    "signed": false
+  }
+}
