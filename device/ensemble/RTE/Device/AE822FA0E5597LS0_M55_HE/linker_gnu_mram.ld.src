@@ -30,7 +30,6 @@
 
 #define __STACK_SIZE             APP_HE_STACK_SIZE
 #define __HEAP_SIZE              APP_HE_HEAP_SIZE
-#define __APP_HEAP_SIZE          0x00004000
 #define __ROM_BASE               APP_MRAM_HE_BASE
 #define __ROM_SIZE               APP_MRAM_HE_SIZE
 
@@ -67,16 +66,13 @@ SECTIONS
   {
     KEEP(*(.vectors))
 
-    *startup*(.text .rodata*)
-    *system*(.text .rodata*)
-    *sys_*(.text .rodata*)
-    *pm*(.text .rodata*)
-    *tgu*(.text .rodata*)
-    *mpu*(.text .rodata*)
-    *sau_tcm_ns_setup*(.text .rodata*)
+    *startup*(.text* .rodata*)
+    *system*(.text* .rodata*)
+    *tgu*(.text* .rodata*)
+    *mpu*(.text* .rodata*)
+    *sau_tcm_ns_setup*(.text* .rodata*)
 
-    *lv_*(.text .rodata*)
-
+    *lv_*(.text* .rodata*)
     . = ALIGN(16);
   } > MRAM
 
@@ -151,18 +147,9 @@ SECTIONS
   .data.at_dtcm : ALIGN(8)
   {
     *(vtable)
-    *(.data)
     *(.data*)
-    *arm_common_tables*(.data* .rodata*)
 
     KEEP(*(.jcr*))
-
-    . = ALIGN(8);
-    *(.ARM.extab* .gnu.linkonce.armextab.*)
-    . = ALIGN(8);
-    __exidx_start = .;
-    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    __exidx_end = .;
     . = ALIGN(16);
   } > DTCM AT > MRAM
 
@@ -179,8 +166,7 @@ SECTIONS
   .bss (NOLOAD) : ALIGN(8)
   {
     __bss_start__ = .;
-    *(.bss)
-    *(.bss.*)
+    *(.bss*)
     *(COMMON)
 
     . = ALIGN(8);
@@ -198,14 +184,6 @@ SECTIONS
     . = ALIGN(TGU_BLOCK_SIZE);
     __ns_region_0_end = .;
   } > DTCM
-
-  .__app_heap (NOLOAD) : ALIGN(8)
-  {
-     . = ALIGN(8);
-     __RAM_segment_used_end__ = .;
-     . = . + __APP_HEAP_SIZE;
-     . = ALIGN(8);
-   } > DTCM
 
   .heap (NOLOAD) : ALIGN(8)
   {
