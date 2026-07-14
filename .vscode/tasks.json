@@ -153,7 +153,7 @@
             },
             "command": [
                 "./app-gen-toc -f alif-img.json;",
-                "./app-write-mram -p;",
+                "./app-write-mram -a -p;",
                 "rm ./alif-img.json;"
             ],
             "problemMatcher": [],
@@ -167,7 +167,7 @@
             },
             "command": [
                 "./app-gen-toc -f alif-img.json;",
-                "./app-write-mram -p;",
+                "./app-write-mram -a -p;",
                 "rm ./alif-img.json;"
             ],
             "problemMatcher": [],
@@ -439,7 +439,7 @@
                 "cp './.alif/app-cpu-stubs.json' '${config:alif.setools.root}/build/config/app-cpu-stubs.json';",
                 "cd '${config:alif.setools.root}';",
                 "./app-gen-toc -f ./build/config/app-cpu-stubs.json;",
-                "./app-write-mram;"
+                "./app-write-mram -a;"
             ],
             "windows": {
                 "options": {
@@ -481,7 +481,7 @@
                 "cp './.alif/app-cpu-stubs-hfrc.json' '${config:alif.setools.root}/build/config/app-cpu-stubs-hfrc.json';",
                 "cd '${config:alif.setools.root}';",
                 "./app-gen-toc -f ./build/config/app-cpu-stubs-hfrc.json;",
-                "./app-write-mram;"
+                "./app-write-mram -a;"
             ],
             "windows": {
                 "options": {
