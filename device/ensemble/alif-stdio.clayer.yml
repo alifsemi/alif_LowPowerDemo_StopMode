@@ -4,7 +4,7 @@ layer:
   packs:
     - pack: ARM::CMSIS@^6.0.0
     - pack: ARM::CMSIS-Compiler@^2.0.0
-    - pack: AlifSemiconductor::Ensemble@2.1.0
+    - pack: AlifSemiconductor::Ensemble@^2.1.0
   components:
     - component: CMSIS-Compiler:CORE
     - component: CMSIS-Compiler:STDIN:Custom
