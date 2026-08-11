@@ -213,6 +213,84 @@
             "problemMatcher": []
         },
         {
+            "label": "Alif: enable JTAG for devices in LCS=SE",
+            "type": "shell",
+            "command": [
+                "cd '${config:alif.setools.root}';",
+                "./app-secure-debug;"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": [
+                            "-Command"
+                        ]
+                    }
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "osx": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Alif: update SE firmware version",
+            "type": "shell",
+            "command": [
+                "cd '${config:alif.setools.root}';",
+                "./updateSystemPackage;"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": [
+                            "-Command"
+                        ]
+                    }
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "osx": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Alif: launch maintenance tool",
             "type": "shell",
             "command": [
@@ -392,7 +470,7 @@
             "command": [
                 "cp './.alif/cmds_get_revision_info.txt' '${config:alif.setools.root}/cmds_get_revision_info.txt';",
                 "cd '${config:alif.setools.root}';",
-                "./maintenance < cmds_get_revision_info.txt | grep -a -e \"v1.\" -e \"MfgData\" -e \"LCS\" -e \"HBK0\" -e \"Version\";"
+                "./maintenance < cmds_get_revision_info.txt | grep -a -e \"v1.\" -e \"MfgData\" -e \"LCS\" -e \"HBK[0-1]\" -e \"Version\";"
             ],
             "windows": {
                 "command": [

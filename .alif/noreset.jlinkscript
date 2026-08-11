@@ -1,0 +1,9 @@
+int SetupTarget(void)
+{
+  return 0;
+}
+
+int ResetTarget(void)
+{
+  return 0;
+}
