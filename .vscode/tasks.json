@@ -36,8 +36,8 @@
             "type": "shell",
             "command": [
                 "cpackget init https://www.keil.com/pack/index.pidx;",
-                "cpackget add https://github.com/ARM-software/CMSIS_6/releases/download/v6.0.0/ARM.CMSIS.6.0.0.pack;",
-                "cpackget add https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.4/AlifSemiconductor.Ensemble.2.0.4.pack;",
+                "cpackget add https://github.com/ARM-software/CMSIS_6/releases/download/v6.2.0/ARM.CMSIS.6.2.0.pack;",
+                "cpackget add https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.2.0/AlifSemiconductor.Ensemble.2.2.0.pack;",
                 "cpackget list;",
                 "echo 'Pack installation has been completed'"
             ],
@@ -476,7 +476,7 @@
                 "command": [
                     "cp './.alif/cmds_get_revision_info.txt' '${config:alif.setools.root}/cmds_get_revision_info.txt';",
                     "cd '${config:alif.setools.root}';",
-                    "Get-Content cmds_get_revision_info.txt | ./maintenance | Select-String -Pattern 'v1\\.','MfgData','LCS','HBK0','Version';"
+                    "Get-Content cmds_get_revision_info.txt | ./maintenance | Select-String -Pattern 'v1\\.','MfgData','LCS','HBK[0-1]','Version';"
                 ],
                 "options": {
                     "shell": {
