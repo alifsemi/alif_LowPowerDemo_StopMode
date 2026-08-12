@@ -28,17 +28,10 @@
  */
 #include "app_mem_regions.h"
 
-#define __STACK_SIZE             APP_HP_STACK_SIZE
-#define __HEAP_SIZE              APP_HP_HEAP_SIZE
-#define __ROM_BASE               APP_MRAM_HP_BASE
-#define __ROM_SIZE               APP_MRAM_HP_SIZE
-
-/*
- * Note:
- * The empty regions(eg SRAM1) are ON by default, but may have been released
- * by some example applications. So make sure your application requests
- * power for these regions before adding contents.
- */
+#define __STACK_SIZE            APP_HP_STACK_SIZE
+#define __HEAP_SIZE             APP_HP_HEAP_SIZE
+#define __ROM_BASE              APP_MRAM_HP_BASE
+#define __ROM_SIZE              APP_MRAM_HP_SIZE
 
 MEMORY
 {
@@ -74,6 +67,7 @@ SECTIONS
     *sau_tcm_ns_setup*(.text* .rodata*)
 
     *lv_*(.text* .rodata*)
+
     . = ALIGN(16);
   } > MRAM
 
@@ -100,42 +94,6 @@ SECTIONS
     LONG (SIZEOF(.bss.at_sram0)/4)
 #endif
     __zero_table_end__ = .;
-    . = ALIGN(16);
-  } > MRAM
-
-  /* Caution: .got, .tdata and .tbss sections come under
-   * RELRO section. So keep it adjacent one after another.
-   */
-  .got : ALIGN(8)
-  {
-    *(.got)
-    *(.got*)
-    *(.data.rel.ro)
-    *(.data.rel.ro*)
-    *(.got.plt)
-    . = ALIGN(16);
-  } > MRAM
-
-  /* Thread Local Storage sections */
-  .tdata.at_mram : ALIGN(16)
-  {
-    /* TLS base = beginning of TLS block */
-    __tls_base = .;
-    /* Offset inside TLS block where TCB is expected */
-    __arm32_tls_tcb_offset = .;
-    /* Initialized TLS variables */
-    *(.tdata .tdata.* .gnu.linkonce.td.*)
-    __tdata_end = .;
-    . = ALIGN(16);
-  } > MRAM
-
-  /* Thread-Local Uninitialized Data (.tbss) */
-  .tbss (NOLOAD) : ALIGN(16)
-  {
-    *(.tbss .tbss.* .gnu.linkonce.tb.*)
-    /* TLS commons here */
-    *(.tcommon)
-    __tbss_end = .;
     . = ALIGN(16);
   } > MRAM
 
@@ -261,23 +219,4 @@ SECTIONS
 
   /* Check if data + heap + stack exceeds RAM limit */
   ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
-
-  /* Picolib crt on clang compiler requires below definitions for data and bss sections copy.
-   * We have multiple sections at diff memory locations to copy e.g. itcm, dtcm etc.
-   * but the __start of picolib copies one section only.
-   * So, setting data and bss defines to zero to skip it.
-   */
-  PROVIDE(__stack_limit = __StackLimit);
-  PROVIDE(__data_start = 0);
-  PROVIDE(__data_source = 0);
-  PROVIDE(__data_size = 0);
-  PROVIDE(__bss_start = 0);
-  PROVIDE(__bss_size = 0);
-  PROVIDE(__heap_start = 0);
-  PROVIDE(__heap_end = 0);
-
-  /* TLS helper sizes */
-  __tdata_size = __tdata_end - __tls_base;
-  __tbss_size  = __tbss_end - __tdata_end;
-  __tls_end    = __tbss_end;
 }
