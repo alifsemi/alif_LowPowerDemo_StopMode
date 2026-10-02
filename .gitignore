@@ -4,6 +4,9 @@ tmp/
 *.cbuild-run.yml
 *.cbuild.yml
 *.clangd
+.clang-format
+Pre_Include_Global.h
 RTE_Components.h
 cmsis.json
 settings.json
+tools-environment.yml

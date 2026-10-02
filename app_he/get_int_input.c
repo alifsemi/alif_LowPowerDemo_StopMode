@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define STRING_MAX_LEN    7
 
@@ -18,6 +17,7 @@ int32_t get_int_input()
         if ((10 == char_in) || (13 == char_in)) {
             /* only break if string len is greater than 0 */
             if(len > 0) break;
+            continue;
         }
 
         /* backspace OR delete */
@@ -29,6 +29,7 @@ int32_t get_int_input()
                 printf("\b \b");
             }
             string_in[len] = 0;
+            continue;
         }
 
         /* max string length reached, do not add to string */
