@@ -16,6 +16,10 @@
 #include <pm.h>
 
 #if defined(RTE_CMSIS_Compiler_STDIN) || defined(RTE_CMSIS_Compiler_STDOUT)
+#define _UART_BASE_(n) UART##n##_BASE
+#define UART_BASE(n) _UART_BASE_(n)
+#define _UART_CLK_SRC_(n)   RTE_UART##n##_CLK_SOURCE
+#define UART_CLK_SRC(n)     _UART_CLK_SRC_(n)
 #include "retarget_init.h"
 #include "retarget_config.h"
 #endif
@@ -190,12 +194,12 @@ static void boot_from_por()
     delay_ms(100);
 
     printf("Wake up period in milliseconds (e.g. 10ms to 10000ms)\r\n");
-    printf("> 1000");
-    uint32_t sleep_ms = 1000;//get_int_input();
+    printf("> ");
+    uint32_t sleep_ms = get_int_input();
 
     printf("\r\nTime spent running while(1) (e.g. 1ms to 1000ms)\r\n");
-    printf("> 100");
-    uint32_t active_ms = 100;//get_int_input();
+    printf("> ");
+    uint32_t active_ms = get_int_input();
 
     printf("\r\nStarting Power cycle demo\r\n\n");
 
@@ -349,6 +353,14 @@ int main (void)
 
 static void uart_init()
 {
+#if PRINTF_UART_CONSOLE != LP
+#if UART_CLK_SRC(PRINTF_UART_CONSOLE) == 0
+    CGU_clock_enable_clk38p4M(true);
+    SocTopClockHFOSC();
+#else
+    SystBusClkUpdate();
+#endif
+#endif
     delay_ms(2);
 #if defined(RTE_CMSIS_Compiler_STDIN_Custom)
     stdin_init();
@@ -362,7 +374,15 @@ static void uart_init()
 static void uart_update()
 {
 #if defined(RTE_CMSIS_Compiler_STDIN_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+#if PRINTF_UART_CONSOLE == LP
     uart_set_baudrate((UART_Type*)LPUART_BASE, SystemCoreClock, PRINTF_UART_CONSOLE_BAUD_RATE);
+#elif UART_CLK_SRC(PRINTF_UART_CONSOLE) == 0
+    SocTopClockHFOSC();
+    uart_set_baudrate((UART_Type*)UART_BASE(PRINTF_UART_CONSOLE), SystemHFOSCClock, PRINTF_UART_CONSOLE_BAUD_RATE);
+#else
+    SystBusClkUpdate();
+    uart_set_baudrate((UART_Type*)UART_BASE(PRINTF_UART_CONSOLE), SystemAPBClock, PRINTF_UART_CONSOLE_BAUD_RATE);
+#endif
 #endif
 }
 
