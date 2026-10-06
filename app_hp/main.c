@@ -200,8 +200,6 @@ static void uart_deinit()
         0, PADCTRL_DRIVER_DISABLED_PULL_UP);
 #endif
 #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    UART_Type *uart = (UART_Type*)UART_BASE(PRINTF_UART_CONSOLE);
-    while (!(uart->UART_LSR & UART_LSR_TRANSMITTER_EMPTY));
     pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM, PRINTF_UART_CONSOLE_TX_PIN,
         0, PADCTRL_DRIVER_DISABLED_PULL_UP);
 #endif
