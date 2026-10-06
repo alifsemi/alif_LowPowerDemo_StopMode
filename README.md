@@ -1,10 +1,10 @@
 # About: MCU STOP Mode & MHU Multicore Demo
 For Ensembe E1, E3, E4, E5, E6, E7 or E8
-  - RTSS-HE logs are on LP-UART (RX P9_1 and TX P9_2)
+  - RTSS-HE logs are on UART2 (RX P1_0 and TX P1_1)
   - RTSS-HP logs are on UART4 (RX P12_1 and TX P12_2)
 
 For Ensemble E1C or Balletto B1
-  - RTSS-HE logs are on LP-UART (RX P2_0 and TX P7_1)
+  - RTSS-HE logs are on UART2 (RX P5_2 and TX P5_3)
 
 Changing the UART instance and pinmux is done via the retarget_config.h file.
 ```
