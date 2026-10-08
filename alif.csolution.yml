@@ -90,6 +90,7 @@ solution:
     - _UNICODE
 
   projects:
+    - project: blinky/blinky.cproject.yml
     - project: app_he/app_he.cproject.yml
       for-context:
         - +E1C-HE
