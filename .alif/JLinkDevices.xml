@@ -12,6 +12,7 @@
     <ChipInfo Vendor="AlifSemiconductor" Name="AE302F80F55D5_HP" Aliases="AE302F80F55D5LE_M55_HP; AE302F80F55D5AE_M55_HP" JLinkScriptFile="noreset.jlinkscript" />
   </Device>
   <Device>
-    <ChipInfo Vendor="AlifSemiconductor" Name="AE1C1F4051920PH" Aliases="AE1C1F4051920PH_M55_HE; AE1C1F4051920PH0_M55_HE" JLinkScriptFile="noreset.jlinkscript" />
+    <ChipInfo Vendor="AlifSemiconductor" Name="AE1C1F4051920PH" Aliases="AE1C1F4051920PH_M55_HE; AE1C1F4051920PH0_M55_HE" JLinkScriptFile="noreset.jlinkscript" WorkRAMAddr="0x00000000" WorkRAMSize="0x00020000" />
+    <FlashBankInfo Name="MRAM" BaseAddr="0x80000000" MaxSize="0x001DD000" Loader="Ensemble_E1C.FLM" LoaderType="FLASH_ALGO_TYPE_OPEN" AlwaysPresent="1" />
   </Device>
 </DataBase>
