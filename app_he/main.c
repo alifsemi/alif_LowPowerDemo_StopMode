@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 #include <alif.h>
 #include <RTE_Components.h>
